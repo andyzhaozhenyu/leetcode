@@ -338,3 +338,84 @@ class Solution:
 - `2 <= m * n <= 105`
 - `grid[i][j]` 为 `0` **或** `1`
 - `grid[0][0] == grid[m - 1][n - 1] == 0`
+
+
+
+
+
+
+
+## 题解
+
+这题 我一开始是想用回溯, 但是超时, 而且第二次想使用回溯的时候发现写不出来了
+
+所以代码 还是要好好练习啊
+
+然后在别人那看到一个很好的思路 是用 BFS
+
+我们可以吧有障碍物的格子设定为权重为 1 的路径, 没有障碍物的格子是权重为0.
+
+所以我们可以把问题转换为 从起点到终点的最短路径
+
+通过 BFS 我们一直到一个最短路径树, 他的每层节点到起点的位置应该相同
+
+这里我们可以使用 deque 来完成这个操作
+
+因为 deque 可以从两端入队, 如果当前路径的权重为0 我们应该优先访问 所以需要从 左入队
+
+而相反 如果权重为 1 , 我们应该之后访问 所以从右入队 以下是推导最短路径树的过程
+
+![2290 最短路径树的推导过程](/Users/andy/Desktop/leetcode/2290 最短路径树的推导过程.jpg)
+
+
+
+~~~ python
+from collections import deque
+class Solution:
+    def minimumObstacles(self, grid: List[List[int]]) -> int:
+
+        DEBUG = 0
+        m = len(grid)
+        n = len(grid[0])
+
+        ## 去储存 到每个点的最短路径
+        dp = [[float('inf') for i in range(n)] for i in range(m)]
+        dp[0][0] = 0
+
+        ## 上下左右四个方向
+        directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+
+        ## 用来做 BFS
+        queue = deque([[0, 0]])
+        while queue:
+            curr = queue.popleft()
+            for x, y in directions:
+                if DEBUG:
+                    print(x, y)
+                    print(curr)
+                new_x = x + curr[0]
+                new_y = y + curr[1]
+
+                if 0 <= new_x < m and 0 <= new_y < n:
+                    g = grid [new_x][new_y]
+                    if g + dp[curr[0]][curr[1]] < dp[new_x][new_y]:
+                        dp[new_x][new_y] = g + dp[curr[0]][curr[1]]
+                        if dp[new_x][new_y]:
+                            if DEBUG:
+                                print(new_x, new_y)
+                            queue.append([new_x, new_y])
+                        else:
+                            queue.appendleft([new_x, new_y])
+        return dp[m - 1][n - 1]
+~~~
+
+
+
+
+
+思路二 (代码还未实现)
+
+因为可以转换成图论问题, 所以可以使用 Dijkstra 算法实现
+
+这里还没有用代码实现
+
